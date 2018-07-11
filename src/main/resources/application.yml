@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./test
+    username: mamba
+    password: mamba
+    driver-class-name: org.h2.Driver
+    platform: h2
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database: h2
+  jackson:
+      default-property-inclusion: non_null
