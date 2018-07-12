@@ -24,6 +24,7 @@ public class SearchController {
     @Resource
     private MagnetSearchServiceImpl magnetSearchService;
 
+
     @GetMapping(value = "/magnet")
     public Result searchMagnet(@RequestParam String keyword, @RequestParam Integer page, Map<String, Object> map) {
         map.put("page", page);
