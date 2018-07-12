@@ -5,10 +5,7 @@ import io.lovs.downloader.entity.data.MagnetDataEntity;
 import io.lovs.downloader.service.data.MagnetDataService;
 import io.lovs.downloader.utils.MagnetDownloader;
 import io.lovs.downloader.utils.ResultUtil;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -40,8 +37,17 @@ public class MagnetDataController {
 
     @PostMapping(value = "/download")
     public Result startDownload() {
-        MagnetDownloader.download("magnet:?xt=urn:btih:af0d9aa01a9ae123a73802cfa58ccaf355eb19f1", "./");
+        new Thread(() -> {
+            MagnetDownloader.download("magnet:?xt=urn:btih:54dca0477d74d88ed051a9cd62fe5359151e7823", "G:\\tunder_download");
+        }).start();
+
         return ResultUtil.success();
+    }
+
+
+    @GetMapping(value = "/download/{key}")
+    public Result getDownloadInfo(@PathVariable String key) {
+        return ResultUtil.success(MagnetDownloader.getDownloadInfo(key));
     }
 
 }
