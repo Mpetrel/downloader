@@ -3,10 +3,7 @@ package io.lovs.downloader.controller.search;
 import io.lovs.downloader.common.Result;
 import io.lovs.downloader.service.search.impl.MagnetSearchServiceImpl;
 import io.lovs.downloader.utils.ResultUtil;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -29,6 +26,11 @@ public class SearchController {
     public Result searchMagnet(@RequestParam String keyword, @RequestParam Integer page,
                                @RequestParam(required = false) String sort) {
         return ResultUtil.success(magnetSearchService.search(keyword, sort, page, 10));
+    }
+
+    @GetMapping(value = "/magnet/{key}")
+    public Result magnetDetail(@PathVariable String key) {
+        return ResultUtil.success(magnetSearchService.detail(key));
     }
 
 }

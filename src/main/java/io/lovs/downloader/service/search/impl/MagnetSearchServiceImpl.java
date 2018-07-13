@@ -1,6 +1,7 @@
 package io.lovs.downloader.service.search.impl;
 
 import com.github.kevinsawicki.http.HttpRequest;
+import io.lovs.downloader.entity.search.MagnetSearchDetailEntity;
 import io.lovs.downloader.entity.search.MagnetSearchEntity;
 import io.lovs.downloader.entity.search.SearchEntity;
 import io.lovs.downloader.entity.search.SearchResultEntity;
@@ -28,6 +29,7 @@ import java.util.regex.Pattern;
 public class MagnetSearchServiceImpl implements SearchService {
 
     private static final String source = "http://www.btyunsou.co/search/%s_%s_%s.html";
+    private static final String detailUrl = "http://www.btyunsou.co/%s.html";
     private static final List<String> sortType = Arrays.asList("ctime", "length", "click");
     private static final Map<String, String> headers = new HashMap<>();
 
@@ -59,8 +61,9 @@ public class MagnetSearchServiceImpl implements SearchService {
      * @return
      */
     @Override
-    public SearchEntity detail(String key) {
-        return null;
+    public SearchEntity detail(@NonNull String key) {
+        String body = HttpRequest.get(String.format(detailUrl, key)).headers(headers).body();
+        return parseDetail(body);
     }
 
 
@@ -107,6 +110,30 @@ public class MagnetSearchServiceImpl implements SearchService {
             }
         }
         return 0;
+    }
+
+    /**
+     * 解析详情
+     * @param body
+     * @return
+     */
+    private MagnetSearchDetailEntity parseDetail(String body) {
+        MagnetSearchDetailEntity detail = new MagnetSearchDetailEntity();
+        Document doc = Jsoup.parse(body);
+        Element nameElement = doc.selectFirst("div[class*=tor-title] > h2");
+        detail.setName(nameElement.text());
+        // 其他属性
+        Element otherInfo = doc.selectFirst("table[class*=detail]");
+        detail.setHash(otherInfo.selectFirst("td:containsOwn(Hash:) + td").text());
+        detail.setFileNumber(otherInfo.selectFirst("td:containsOwn(数量:) + td").text());
+        detail.setSizeName(otherInfo.selectFirst("td:containsOwn(大小:) + td").text());
+        detail.setCreateDate(otherInfo.selectFirst("td:containsOwn(日期:) + td").text());
+        detail.setHot(otherInfo.selectFirst("td:containsOwn(热度:) + td").text());
+
+        // 包含文件详情
+        List<Map<String, String>> fileList = new ArrayList<>();
+        detail.setSeedItems(fileList);
+        return detail;
     }
 
 
