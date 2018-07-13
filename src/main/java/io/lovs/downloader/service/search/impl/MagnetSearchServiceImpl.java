@@ -53,6 +53,16 @@ public class MagnetSearchServiceImpl implements SearchService {
         return resultEntity;
     }
 
+    /**
+     * 解析具体详情
+     * @param key
+     * @return
+     */
+    @Override
+    public SearchEntity detail(String key) {
+        return null;
+    }
+
 
     /**
      * 解析网页信息
