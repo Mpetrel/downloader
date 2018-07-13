@@ -1,11 +1,10 @@
 package io.lovs.downloader.service.search;
 
-import io.lovs.downloader.entity.search.SearchEntity;
 
-import java.util.List;
+import io.lovs.downloader.entity.search.SearchResultEntity;
 
 public interface SearchService {
 
-    List<? extends SearchEntity> search(String keyword, Integer page, Integer size);
+    SearchResultEntity search(String keyword, String sort, Integer page, Integer size);
 
 }

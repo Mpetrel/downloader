@@ -3,6 +3,7 @@ package io.lovs.downloader.service.search.impl;
 import com.github.kevinsawicki.http.HttpRequest;
 import io.lovs.downloader.entity.search.MagnetSearchEntity;
 import io.lovs.downloader.entity.search.SearchEntity;
+import io.lovs.downloader.entity.search.SearchResultEntity;
 import io.lovs.downloader.service.search.SearchService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +13,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @program: downloader
@@ -28,7 +28,7 @@ import java.util.Map;
 public class MagnetSearchServiceImpl implements SearchService {
 
     private static final String source = "http://www.btyunsou.co/search/%s_%s_%s.html";
-    private static final String[] sortType = {"ctime", "length", "click"};
+    private static final List<String> sortType = Arrays.asList("ctime", "length", "click");
     private static final Map<String, String> headers = new HashMap<>();
 
     static {
@@ -37,12 +37,20 @@ public class MagnetSearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<? extends SearchEntity> search(@NonNull String keyword, Integer page, Integer size) {
+    public SearchResultEntity search(@NonNull String keyword, String sort, Integer page, Integer size) {
         if (page < 0 || page > 200) {
             page = 1;
         }
-        String url = String.format(source, keyword, sortType[2], page);
-        return parse(HttpRequest.get(url).headers(headers).body());
+        if (sort == null || !sortType.contains(sort)) {
+            sort = sortType.get(0);
+        }
+        String url = String.format(source, keyword, sort, page);
+        String body = HttpRequest.get(url).headers(headers).body();
+        SearchResultEntity resultEntity = new SearchResultEntity();
+        resultEntity.setList(parse(body));
+        resultEntity.setTotalPage(pageInfo(body));
+        resultEntity.setCurrentPage(page);
+        return resultEntity;
     }
 
 
@@ -60,13 +68,35 @@ public class MagnetSearchServiceImpl implements SearchService {
                 MagnetSearchEntity entity = new MagnetSearchEntity();
                 Element a = element.selectFirst(".title");
                 entity.setName(a.text());
-                entity.setUrl("magnet:?xt=urn:btih:" + a.attr("href").substring(1).replace(".html", ""));
+                entity.setUrl("magnet:?xt=urn:btih:" + a.attr("href").substring(1)
+                        .replace(".html", ""));
                 entity.setSizeName(element.selectFirst(".label-warning").text());
                 entity.setHot(element.selectFirst(".label-primary").text());
+                entity.setCreateDate(element.selectFirst(".label-success").text());
                 magnets.add(entity);
             });
         }
         return magnets;
+    }
+
+    /**
+     * 解析总页数
+     * @param body
+     * @return
+     */
+    private Integer pageInfo(String body) {
+        Document doc = Jsoup.parse(body);
+        Element element = doc.selectFirst("a:containsOwn(末页)");
+        if (element != null) {
+            // 解析末页数量
+            String href = element.attr("href");
+            Pattern pattern = Pattern.compile(".*_(\\d*).html");
+            Matcher matcher = pattern.matcher(href);
+            if (matcher.find()) {
+                return Integer.valueOf(matcher.group(1));
+            }
+        }
+        return 0;
     }
 
 

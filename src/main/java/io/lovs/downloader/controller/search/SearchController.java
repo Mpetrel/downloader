@@ -26,10 +26,9 @@ public class SearchController {
 
 
     @GetMapping(value = "/magnet")
-    public Result searchMagnet(@RequestParam String keyword, @RequestParam Integer page, Map<String, Object> map) {
-        map.put("page", page);
-        map.put("list", magnetSearchService.search(keyword, page, 10));
-        return ResultUtil.success(map);
+    public Result searchMagnet(@RequestParam String keyword, @RequestParam Integer page,
+                               @RequestParam(required = false) String sort) {
+        return ResultUtil.success(magnetSearchService.search(keyword, sort, page, 10));
     }
 
 }
