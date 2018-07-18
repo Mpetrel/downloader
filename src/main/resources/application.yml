@@ -12,3 +12,5 @@ spring:
     database: h2
   jackson:
       default-property-inclusion: non_null
+server:
+  port: 8090
