@@ -81,15 +81,36 @@ public class MagnetSearchServiceImpl implements SearchService {
                 MagnetSearchEntity entity = new MagnetSearchEntity();
                 Element a = element.selectFirst(".title");
                 entity.setName(a.text());
-                entity.setUrl("magnet:?xt=urn:btih:" + a.attr("href").substring(1)
+                entity.setHash(a.attr("href").substring(1)
                         .replace(".html", ""));
+                entity.setUrl("magnet:?xt=urn:btih:" + entity.getHash());
                 entity.setSizeName(element.selectFirst(".label-warning").text());
                 entity.setHot(element.selectFirst(".label-primary").text());
+                entity.setRate(calculateRate(entity.getHot()));
                 entity.setCreateDate(element.selectFirst(".label-success").text());
                 magnets.add(entity);
             });
         }
         return magnets;
+    }
+
+
+    /**
+     * 计算评分
+     * @param hot
+     * @return
+     */
+    private Integer calculateRate(String hot) {
+        try{
+            int val = Integer.valueOf(hot);
+            if (val > 1000) return 5;
+            if (val > 500) return 4;
+            if (val > 100) return 3;
+            if (val > 50) return 2;
+        }catch (Exception e) {
+            log.error("Rate Calculate: error", e);
+        }
+        return 1;
     }
 
     /**
@@ -132,6 +153,17 @@ public class MagnetSearchServiceImpl implements SearchService {
 
         // 包含文件详情
         List<Map<String, String>> fileList = new ArrayList<>();
+        Element table = doc.selectFirst("table[class=table]");
+        Elements trs = table.select("tbody > tr");
+        if (trs != null) {
+            trs.forEach(tr -> {
+                Map<String, String> file = new HashMap<>();
+                file.put("name", tr.child(0).text());
+                file.put("sizeName", tr.child(1).text());
+                fileList.add(file);
+            });
+        }
+
         detail.setSeedItems(fileList);
         return detail;
     }

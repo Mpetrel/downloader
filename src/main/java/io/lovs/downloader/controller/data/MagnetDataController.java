@@ -37,9 +37,9 @@ public class MagnetDataController {
 
     @PostMapping(value = "/download")
     public Result startDownload() {
-        new Thread(() -> {
+       /* new Thread(() -> {
             MagnetDownloader.download("magnet:?xt=urn:btih:54dca0477d74d88ed051a9cd62fe5359151e7823", "G:\\tunder_download");
-        }).start();
+        }).start();*/
 
         return ResultUtil.success();
     }

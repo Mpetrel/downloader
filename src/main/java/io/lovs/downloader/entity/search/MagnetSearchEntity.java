@@ -12,5 +12,6 @@ import lombok.Data;
 public class MagnetSearchEntity extends SearchEntity {
     private String hash;
     private String hot;
+    private Integer rate;
     private String createDate;
 }
