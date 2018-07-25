@@ -1,5 +1,6 @@
 package io.lovs.downloader.service.download.impl;
 
+import com.github.kevinsawicki.http.HttpRequest;
 import io.lovs.downloader.entity.downloader.DownloaderEntity;
 import io.lovs.downloader.service.download.DownloadService;
 import io.lovs.downloader.service.download.callback.DownloadCallback;
@@ -18,6 +19,7 @@ public class MagnetDownloadServiceImpl implements DownloadService {
 
     @Override
     public boolean download(String url, String path) {
+        HttpRequest.get("").contentLength();
         return false;
     }
 

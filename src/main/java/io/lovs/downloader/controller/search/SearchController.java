@@ -6,7 +6,6 @@ import io.lovs.downloader.utils.ResultUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Map;
 
 /**
  * @program: downloader
